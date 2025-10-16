@@ -1,5 +1,6 @@
 import Player from "./player.js";
 import Wall from "./wall.js";
+import MovingWall from "./MovingWall.js";
 
 export default class Scene extends Phaser.Scene {
   constructor() {
@@ -11,15 +12,18 @@ export default class Scene extends Phaser.Scene {
   create() {
     // Create walls
     this.walls = this.physics.add.staticGroup();
-    this.walls.add(new Wall(this, 200, 150, 100));
-    this.walls.add(new Wall(this, 600, 150, 100));
-    this.walls.add(new Wall(this, 200, 450, 100));
-    this.walls.add(new Wall(this, 600, 450, 100));
+    this.walls.add(new Wall(this, 400, 200, 100));
+    this.walls.add(new Wall(this, 600, 400, 100));
+    this.walls.add(new Wall(this, 300, 450, 100));
+    this.walls.add(new Wall(this, 800, 800, 100));
 
-    this.player = new Player(this, 400, 300, 50);
+    this.movingWall = new MovingWall(this, 800, 600, 150, 40, 250, 150);
+
+    this.player = new Player(this, 700, 700, 50);
 
     // collisions
     this.physics.add.collider(this.player.sprite, this.walls);
+    this.physics.add.collider(this.player.sprite, this.movingWall.sprite);
 
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
@@ -35,5 +39,6 @@ export default class Scene extends Phaser.Scene {
 
   update() {
     this.player.update();
+    this.movingWall.update();
   }
 }
