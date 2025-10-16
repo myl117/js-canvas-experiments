@@ -3,23 +3,74 @@ export default class Player {
     this.scene = scene;
     this.size = size;
 
-    this.sprite = scene.add.rectangle(x, y, size, size, 0xff0000);
-    scene.physics.add.existing(this.sprite);
+    this.sprite = scene.physics.add.sprite(x, y, "player_right", 0);
+    this.sprite.setCollideWorldBounds(true);
 
-    this.sprite.body.setCollideWorldBounds(true);
-    this.sprite.body.setSize(size, size);
+    this.sprite.body.setSize(size * 0.6, size * 0.85);
+    this.sprite.setScale(2);
 
     this.keys = scene.input.keyboard.addKeys("W,A,S,D");
+
+    this.lastDirection = "right";
   }
 
   update() {
     const speed = 200;
-    this.sprite.body.setVelocity(0);
+    const body = this.sprite.body;
+    body.setVelocity(0);
 
-    if (this.keys.W.isDown) this.sprite.body.setVelocityY(-speed);
-    else if (this.keys.S.isDown) this.sprite.body.setVelocityY(speed);
+    let moving = false;
 
-    if (this.keys.A.isDown) this.sprite.body.setVelocityX(-speed);
-    else if (this.keys.D.isDown) this.sprite.body.setVelocityX(speed);
+    // Horizontal
+    if (this.keys.A.isDown) {
+      body.setVelocityX(-speed);
+      this.sprite.setFlipX(true);
+      this.sprite.play("walk_left", true);
+      this.lastDirection = "left";
+      moving = true;
+    } else if (this.keys.D.isDown) {
+      body.setVelocityX(speed);
+      this.sprite.setFlipX(false);
+      this.sprite.play("walk_right", true);
+      this.lastDirection = "right";
+      moving = true;
+    }
+
+    // Vertical
+    if (this.keys.W.isDown) {
+      body.setVelocityY(-speed);
+      if (this.lastDirection === "left") {
+        this.sprite.setFlipX(true);
+        this.sprite.play("walk_left", true);
+      } else {
+        this.sprite.setFlipX(false);
+        this.sprite.play("walk_right", true);
+      }
+      moving = true;
+    } else if (this.keys.S.isDown) {
+      body.setVelocityY(speed);
+      if (this.lastDirection === "left") {
+        this.sprite.setFlipX(true);
+        this.sprite.play("walk_left", true);
+      } else {
+        this.sprite.setFlipX(false);
+        this.sprite.play("walk_right", true);
+      }
+      moving = true;
+    }
+
+    // Idle
+    if (!moving) {
+      this.sprite.anims.stop();
+
+      // Freeze on 3rd frame
+      if (this.lastDirection === "left") {
+        this.sprite.setFlipX(true);
+        this.sprite.setFrame(2);
+      } else {
+        this.sprite.setFlipX(false);
+        this.sprite.setFrame(2);
+      }
+    }
   }
 }

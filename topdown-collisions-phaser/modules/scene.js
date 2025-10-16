@@ -1,13 +1,19 @@
 import Player from "./player.js";
 import Wall from "./wall.js";
-import MovingWall from "./MovingWall.js";
+import MovingWall from "./movingWall.js";
+import { createPlayerAnimations } from "./animations.js";
 
 export default class Scene extends Phaser.Scene {
   constructor() {
     super({ key: "Scene" });
   }
 
-  preload() {}
+  preload() {
+    this.load.spritesheet("player_right", "assets/player_walk_right.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+  }
 
   create() {
     // Create walls
@@ -19,7 +25,7 @@ export default class Scene extends Phaser.Scene {
 
     this.movingWall = new MovingWall(this, 800, 600, 150, 40, 250, 150);
 
-    this.player = new Player(this, 700, 700, 50);
+    this.player = new Player(this, 700, 700, 32);
 
     // collisions
     this.physics.add.collider(this.player.sprite, this.walls);
@@ -38,6 +44,8 @@ export default class Scene extends Phaser.Scene {
   }
 
   update() {
+    createPlayerAnimations(this);
+
     this.player.update();
     this.movingWall.update();
   }
