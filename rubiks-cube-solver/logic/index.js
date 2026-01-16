@@ -23,10 +23,57 @@ camera.lookAt(0, 0, 0);
 
 initLights(scene, THREE);
 const { renderer, controls } = initHelpers(camera, scene, THREE);
-loadObjects(scene, THREE);
+const { rubiksCube } = loadObjects(scene, THREE);
+
+const moves = [
+  "R",
+  "U",
+  "F",
+  "B",
+  "L",
+  "D",
+  "U'",
+  "U",
+  "D'",
+  "L'",
+  "B'",
+  "F'",
+  "U'",
+  "R'",
+];
+
+let currentMoveIndex = 0;
+
+const applyNextMove = () => {
+  if (currentMoveIndex >= moves.length) return;
+  rubiksCube.updateCube([moves[currentMoveIndex]]);
+  currentMoveIndex++;
+
+  setTimeout(applyNextMove, 1000);
+};
+
+applyNextMove();
 
 function animate() {
   requestAnimationFrame(animate);
+
+  rubiksCube.updateCube([
+    "R",
+    "U",
+    "F",
+    "B",
+    "L",
+    "D",
+    "U'",
+    "U",
+    "D'",
+    "L'",
+    "B'",
+    "F'",
+    "U'",
+    "R'",
+  ]);
+
   renderer.render(scene, camera);
   controls.update();
 }
