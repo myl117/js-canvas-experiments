@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { initLights } from "./lights.js";
-import { initHelpers } from "./helpers.js";
+import { initLights } from "./helpers/lights.js";
+import { initHelpers } from "./helpers/helpers.js";
 import { loadObjects } from "./objects.js";
 
 const scene = new THREE.Scene();
@@ -13,16 +13,21 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.z = 3;
+camera.position.z = 5;
+const radius = camera.position.z;
+const angle = THREE.MathUtils.degToRad(-30);
+camera.position.x = radius * Math.sin(angle);
+camera.position.z = radius * Math.cos(angle);
+camera.position.y = 4;
+camera.lookAt(0, 0, 0);
 
 initLights(scene, THREE);
 const { renderer, controls } = initHelpers(camera, scene, THREE);
-loadObjects(scene, THREE);
+const { gravityCube } = loadObjects(scene, THREE);
 
 function animate() {
+  gravityCube.applyGravity();
   requestAnimationFrame(animate);
-  // cube.rotation.x += 0.01;
-  // cube.rotation.y += 0.01;
   renderer.render(scene, camera);
   controls.update();
 }
