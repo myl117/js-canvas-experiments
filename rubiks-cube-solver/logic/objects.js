@@ -4,11 +4,11 @@ import {
   scramble as scrambleCube,
   inverseMoves,
 } from "./rubiks-cube.js";
+import { IDDFS } from "./iddfs-solver.js";
 
 // let c = createSolvedCube();
-// c = applyMoves(c, ["R", "U", "F", "B", "L", "D", "U'"]);
-// c = applyMoves(c, ["U", "D'", "L'", "B'", "F'", "U'", "R'"]);
-// console.log(areCubesEqual(c, createSolvedCube()));
+// c = applyMoves(c, ["R", "U", "D", "F'"]);
+// console.log(areCubesEqual(c, createSolvedCube()), IDDFS(c, 5));
 
 const getCubeColor = (index) => {
   if (index >= 0 && index <= 8) return "white"; // U
@@ -128,8 +128,25 @@ const loadRubiksCube = (scene, THREE) => {
     const unscrambleMoves = inverseMoves(scrambledMoves);
 
     for (const m of unscrambleMoves) {
-      console.log(m);
       await new Promise((r) => setTimeout(r, 100));
+      updateCube([m]);
+    }
+
+    scrambledMoves = [];
+  };
+
+  const solve = async (delay, maxSolveDepth) => {
+    const solution = IDDFS(rubiksCube, maxSolveDepth);
+
+    console.log(rubiksCube, solution);
+
+    if (!solution) {
+      alert("Failed to solve cube :(");
+      return;
+    }
+
+    for (const m of solution) {
+      await new Promise((r) => setTimeout(r, delay));
       updateCube([m]);
     }
 
@@ -142,7 +159,7 @@ const loadRubiksCube = (scene, THREE) => {
 
   cube.position.y = 0.5;
 
-  return { updateCube, scramble, unScramble };
+  return { updateCube, scramble, unScramble, solve };
 };
 
 const loadObjects = (scene, THREE) => {

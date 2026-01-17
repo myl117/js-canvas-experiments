@@ -31,12 +31,16 @@ const gui = new GUI();
 const params = {
   moveIndex: 0,
   delay: 100,
-  scrambleCount: 6,
+  scrambleCount: 3,
+  maxSolveDepth: 6,
   scramble: () => {
     rubiksCube.scramble(params.scrambleCount, params.delay);
   },
   unscramble: () => {
     rubiksCube.unScramble(params.delay);
+  },
+  solve: () => {
+    rubiksCube.solve(params.delay, params.maxSolveDepth);
   },
 };
 
@@ -44,6 +48,8 @@ gui.add(params, "delay", 10, 1000, 10).name("Delay (ms)");
 gui.add(params, "scramble").name("Scramble");
 gui.add(params, "unscramble").name("Unscramble");
 gui.add(params, "scrambleCount").name("Scramble Count");
+gui.add(params, "maxSolveDepth").name("Max Solve Depth");
+gui.add(params, "solve").name("Solve (IDDFS)");
 
 // const moves = [
 //   "R",
