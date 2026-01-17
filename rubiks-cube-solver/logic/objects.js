@@ -1,9 +1,14 @@
-import { createSolvedCube, applyMoves, areCubesEqual } from "./rubiks-cube.js";
+import {
+  createSolvedCube,
+  applyMoves,
+  scramble as scrambleCube,
+  inverseMoves,
+} from "./rubiks-cube.js";
 
-let c = createSolvedCube();
-c = applyMoves(c, ["R", "U", "F", "B", "L", "D", "U'"]);
-c = applyMoves(c, ["U", "D'", "L'", "B'", "F'", "U'", "R'"]);
-console.log(areCubesEqual(c, createSolvedCube()));
+// let c = createSolvedCube();
+// c = applyMoves(c, ["R", "U", "F", "B", "L", "D", "U'"]);
+// c = applyMoves(c, ["U", "D'", "L'", "B'", "F'", "U'", "R'"]);
+// console.log(areCubesEqual(c, createSolvedCube()));
 
 const getCubeColor = (index) => {
   if (index >= 0 && index <= 8) return "white"; // U
@@ -55,12 +60,9 @@ const generateCubeTexture = (cube) => {
   };
 };
 
-console.log(generateCubeTexture(c));
-console.log(getCubeColor(34));
-
 const loadRubiksCube = (scene, THREE) => {
   let rubiksCube = createSolvedCube();
-  let currMove = null;
+  let scrambledMoves = [];
 
   const getCubeTex = () => {
     const cubeTex = generateCubeTexture(rubiksCube);
@@ -92,13 +94,9 @@ const loadRubiksCube = (scene, THREE) => {
   };
 
   const updateCube = (moves) => {
-    if (JSON.stringify(moves) == JSON.stringify(currMove)) return;
+    rubiksCube = applyMoves(rubiksCube, moves);
 
-    c = applyMoves(c, moves);
-
-    console.log("true", c, generateCubeTexture(c));
-
-    const cubeTex = generateCubeTexture(c);
+    const cubeTex = generateCubeTexture(rubiksCube);
     const faceMaps = [
       cubeTex.right,
       cubeTex.left,
@@ -109,12 +107,33 @@ const loadRubiksCube = (scene, THREE) => {
     ];
 
     cube.material.forEach((mat, i) => {
-      if (mat.map) mat.map.dispose(); // dispose old texture
-      mat.map = new THREE.CanvasTexture(faceMaps[i]); // assign new canvas
-      mat.map.needsUpdate = true; // tell Three.js to refresh
+      if (mat.map) mat.map.dispose();
+      mat.map = new THREE.CanvasTexture(faceMaps[i]);
+      mat.map.needsUpdate = true;
     });
+  };
 
-    currMove = moves;
+  const scramble = async (moves, delay) => {
+    updateCube(inverseMoves(scrambledMoves));
+    const { movesMade } = await scrambleCube(
+      rubiksCube,
+      moves,
+      updateCube,
+      delay,
+    );
+    scrambledMoves = movesMade;
+  };
+
+  const unScramble = async (delay) => {
+    const unscrambleMoves = inverseMoves(scrambledMoves);
+
+    for (const m of unscrambleMoves) {
+      console.log(m);
+      await new Promise((r) => setTimeout(r, 100));
+      updateCube([m]);
+    }
+
+    scrambledMoves = [];
   };
 
   const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -123,7 +142,7 @@ const loadRubiksCube = (scene, THREE) => {
 
   cube.position.y = 0.5;
 
-  return { updateCube };
+  return { updateCube, scramble, unScramble };
 };
 
 const loadObjects = (scene, THREE) => {

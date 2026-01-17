@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import GUI from "lil-gui";
 import { initLights } from "./helpers/lights.js";
 import { initHelpers } from "./helpers/helpers.js";
 import { loadObjects } from "./objects.js";
@@ -10,7 +11,7 @@ const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  1000,
 );
 
 camera.position.z = 5;
@@ -25,54 +26,56 @@ initLights(scene, THREE);
 const { renderer, controls } = initHelpers(camera, scene, THREE);
 const { rubiksCube } = loadObjects(scene, THREE);
 
-const moves = [
-  "R",
-  "U",
-  "F",
-  "B",
-  "L",
-  "D",
-  "U'",
-  "U",
-  "D'",
-  "L'",
-  "B'",
-  "F'",
-  "U'",
-  "R'",
-];
+const gui = new GUI();
 
-let currentMoveIndex = 0;
-
-const applyNextMove = () => {
-  if (currentMoveIndex >= moves.length) return;
-  rubiksCube.updateCube([moves[currentMoveIndex]]);
-  currentMoveIndex++;
-
-  setTimeout(applyNextMove, 1000);
+const params = {
+  moveIndex: 0,
+  delay: 100,
+  scrambleCount: 6,
+  scramble: () => {
+    rubiksCube.scramble(params.scrambleCount, params.delay);
+  },
+  unscramble: () => {
+    rubiksCube.unScramble(params.delay);
+  },
 };
 
-applyNextMove();
+gui.add(params, "delay", 10, 1000, 10).name("Delay (ms)");
+gui.add(params, "scramble").name("Scramble");
+gui.add(params, "unscramble").name("Unscramble");
+gui.add(params, "scrambleCount").name("Scramble Count");
+
+// const moves = [
+//   "R",
+//   "U",
+//   "F",
+//   "B",
+//   "L",
+//   "D",
+//   "U'",
+//   "U",
+//   "D'",
+//   "L'",
+//   "B'",
+//   "F'",
+//   "U'",
+//   "R'",
+// ];
+
+// let currentMoveIndex = 0;
+
+// const applyNextMove = () => {
+//   if (currentMoveIndex >= moves.length) return;
+//   rubiksCube.updateCube([moves[currentMoveIndex]]);
+//   currentMoveIndex++;
+
+//   setTimeout(applyNextMove, 100);
+// };
+
+// applyNextMove();
 
 function animate() {
   requestAnimationFrame(animate);
-
-  rubiksCube.updateCube([
-    "R",
-    "U",
-    "F",
-    "B",
-    "L",
-    "D",
-    "U'",
-    "U",
-    "D'",
-    "L'",
-    "B'",
-    "F'",
-    "U'",
-    "R'",
-  ]);
 
   renderer.render(scene, camera);
   controls.update();

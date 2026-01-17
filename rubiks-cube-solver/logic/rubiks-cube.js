@@ -106,4 +106,52 @@ const areCubesEqual = (c1, c2) => {
   return c1.every((val, i) => val === c2[i]);
 };
 
-export { createSolvedCube, MOVES, areCubesEqual, applyMoves };
+function getFace(move) {
+  return move[0];
+}
+
+const inverseMoves = (moves) => {
+  return moves
+    .slice()
+    .reverse()
+    .map((move) => {
+      if (move.endsWith("2")) return move;
+      if (move.endsWith("'")) return move.slice(0, -1);
+      return move + "'";
+    });
+};
+
+const scramble = async (c, scrambleCount, updateCube, delay) => {
+  let lastMove = null;
+  let lastFace = null;
+  let scrambleMoves = [];
+
+  for (let i = 0; i < scrambleCount; i++) {
+    let move;
+    do {
+      move =
+        Object.keys(MOVES)[
+          Math.floor(Math.random() * Object.keys(MOVES).length)
+        ];
+    } while (move === lastMove || getFace(move) === lastFace);
+
+    await new Promise((r) => setTimeout(r, delay));
+
+    scrambleMoves.push(move);
+    c = updateCube([move]);
+
+    lastMove = move;
+    lastFace = getFace(move);
+  }
+
+  return { c, movesMade: scrambleMoves };
+};
+
+export {
+  createSolvedCube,
+  MOVES,
+  areCubesEqual,
+  applyMoves,
+  scramble,
+  inverseMoves,
+};
