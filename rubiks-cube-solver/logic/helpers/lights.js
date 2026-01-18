@@ -1,31 +1,18 @@
 const initLights = (scene, THREE) => {
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(3, 3, 3);
-  scene.add(light);
+  const lights = [
+    [-3, 3, -3],
+    [3, 3, 3],
+    [-3, -3, -3],
+  ];
 
-  light.position.x = -light.position.x;
-  light.position.z = -light.position.z;
+  for (const l of lights) {
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(l[0], l[1], l[2]);
+    scene.add(light);
 
-  const light2 = new THREE.DirectionalLight(0xffffff, 1);
-  light2.position.set(3, 3, 3);
-  scene.add(light2);
-
-  const light3 = new THREE.DirectionalLight(0xffffff, 1);
-  light3.position.set(3, 3, 3);
-  scene.add(light3);
-
-  light3.position.x = -light3.position.x;
-  light3.position.z = -light3.position.z;
-  light3.position.y = -light3.position.y;
-
-  const lightHelper = new THREE.DirectionalLightHelper(light, 1);
-  scene.add(lightHelper);
-
-  const lightHelper2 = new THREE.DirectionalLightHelper(light2, 1);
-  scene.add(lightHelper2);
-
-  const lightHelper3 = new THREE.DirectionalLightHelper(light3, 1);
-  scene.add(lightHelper3);
+    const lightHelper = new THREE.DirectionalLightHelper(light, 1);
+    scene.add(lightHelper);
+  }
 };
 
 export { initLights };
