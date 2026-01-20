@@ -65,3 +65,60 @@ if (keys["w"] || keys["arrowup"]) {
 - When user clicks on forward, create a forward vector and rotate it around the y axis (if the user has clicked a/d)
 - Then scale this vector by movement speed
 - Then add the vector to the players position
+
+### Animations
+
+```js
+let targetAction;
+if (!moving) targetAction = idleAction;
+else targetAction = running ? runningAction : walkAction;
+
+if (activeAction !== targetAction) {
+  activeAction.fadeOut(fadeDuration);
+
+  targetAction.reset();
+  targetAction.enabled = true;
+  targetAction.fadeIn(fadeDuration);
+  targetAction.play();
+
+  activeAction = targetAction;
+}
+```
+
+- Depending on the action being performed, we will either show a running, walking or idle action
+- Use loadAnimationOnly for extra animations instead of loadAnimatedModel which adds a model with an animation
+
+### Collisions
+
+```js
+let canMoveX = true;
+let canMoveZ = true;
+
+// Check X axis
+const testPosX = model.position.clone().add(new THREE.Vector3(forward.x, 0, 0));
+const boxX = new THREE.Box3().setFromCenterAndSize(
+  testPosX.clone().setY(1),
+  playerBoxVector,
+);
+if (boxX.intersectsBox(cubeBox)) canMoveX = false;
+
+// Check Z axis
+const testPosZ = model.position.clone().add(new THREE.Vector3(0, 0, forward.z));
+const boxZ = new THREE.Box3().setFromCenterAndSize(
+  testPosZ.clone().setY(1),
+  playerBoxVector,
+);
+if (boxZ.intersectsBox(cubeBox)) canMoveZ = false;
+
+// Apply allowed movement
+const newPos = model.position.clone();
+if (canMoveX) newPos.x += forward.x;
+if (canMoveZ) newPos.z += forward.z;
+
+model.position.copy(newPos);
+moving = canMoveX || canMoveZ;
+```
+
+- Create a z axis and y axis bounding box and check for collisions.
+- Only allow moving on the axis which will not cause the player to go into the box
+- Use box helpers for visualising the bounding boxes
