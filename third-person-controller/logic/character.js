@@ -1,4 +1,5 @@
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { gravityCube } from "./objects.js";
 
 const loadAnimatedModel = (scene, THREE, url) => {
   return new Promise((resolve, reject) => {
@@ -90,6 +91,20 @@ const loadCharacter = async (scene, THREE) => {
 
   let activeAction = idleAction;
 
+  let playerBox = new THREE.Box3();
+  const playerHelper = new THREE.Box3Helper(playerBox, 0x00ff00);
+  scene.add(playerHelper);
+
+  const playerBoxVector = new THREE.Vector3(0.9, 1.8, 0.9);
+
+  const updatePlayerBox = () => {
+    playerBox.setFromCenterAndSize(
+      model.position.clone().setY(1),
+      playerBoxVector,
+    );
+    playerHelper.updateMatrixWorld(true);
+  };
+
   const update = (delta) => {
     let moving = false;
 
@@ -109,9 +124,48 @@ const loadCharacter = async (scene, THREE) => {
       const forward = new THREE.Vector3(0, 0, -1)
         .applyEuler(new THREE.Euler(0, model.rotation.y, 0))
         .multiplyScalar(currentSpeed);
-      model.position.add(forward);
-      moving = true;
+
+      const cubeBox = new THREE.Box3().setFromObject(gravityCube.cube);
+
+      const cubeHelper = new THREE.Box3Helper(
+        new THREE.Box3().setFromObject(gravityCube.cube),
+        0xff0000,
+      );
+      scene.add(cubeHelper);
+
+      let canMoveX = true;
+      let canMoveZ = true;
+
+      // Check X axis
+      const testPosX = model.position
+        .clone()
+        .add(new THREE.Vector3(forward.x, 0, 0));
+      const boxX = new THREE.Box3().setFromCenterAndSize(
+        testPosX.clone().setY(1),
+        playerBoxVector,
+      );
+      if (boxX.intersectsBox(cubeBox)) canMoveX = false;
+
+      // Check Z axis
+      const testPosZ = model.position
+        .clone()
+        .add(new THREE.Vector3(0, 0, forward.z));
+      const boxZ = new THREE.Box3().setFromCenterAndSize(
+        testPosZ.clone().setY(1),
+        playerBoxVector,
+      );
+      if (boxZ.intersectsBox(cubeBox)) canMoveZ = false;
+
+      // Apply allowed movement
+      const newPos = model.position.clone();
+      if (canMoveX) newPos.x += forward.x;
+      if (canMoveZ) newPos.z += forward.z;
+
+      model.position.copy(newPos);
+      moving = canMoveX || canMoveZ;
     }
+
+    updatePlayerBox();
 
     let targetAction;
     if (!moving) targetAction = idleAction;

@@ -30,11 +30,13 @@ const loadGravityCube = (scene, THREE) => {
   return { cube, applyGravity };
 };
 
+let gravityCube;
+
 const loadObjects = async (scene, THREE) => {
-  const gravityCube = loadGravityCube(scene, THREE);
+  gravityCube = loadGravityCube(scene, THREE);
   const character = await loadCharacter(scene, THREE);
 
   return { gravityCube, character };
 };
 
-export { loadObjects };
+export { loadObjects, gravityCube };
