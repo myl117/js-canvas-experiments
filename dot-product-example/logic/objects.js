@@ -5,6 +5,8 @@ import {
   Mesh,
   Floor,
   SceneObject,
+  Facing,
+  Watcher,
   PlayerControlled,
 } from "./ecs/components/components.js";
 
@@ -28,7 +30,7 @@ export function loadObjects(scene, THREE, world) {
   // Gravity cube
   world
     .createEntity()
-    .add(new Position(3, 4, 0))
+    .add(new Position(2, 4, -1))
     .add(new Velocity())
     .add(new Gravity(-0.005))
     .add(new Floor(0.5))
@@ -40,5 +42,7 @@ export function loadObjects(scene, THREE, world) {
         ),
       ),
     )
-    .add(new SceneObject());
+    .add(new SceneObject())
+    .add(new Facing(0, -1)) // looking toward origin
+    .add(new Watcher(90, 10)); // 90° FOV;
 }

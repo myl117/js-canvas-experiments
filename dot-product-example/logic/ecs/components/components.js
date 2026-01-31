@@ -45,3 +45,17 @@ export class PlayerControlled {
     };
   }
 }
+
+export class Facing {
+  constructor(x = 0, z = 1) {
+    this.x = x;
+    this.z = z;
+  }
+}
+
+export class Watcher {
+  constructor(fovDeg = 90, viewDistance = 10) {
+    this.fov = (fovDeg * Math.PI) / 180; // convert degrees to radians
+    this.viewDistance = viewDistance;
+  }
+}

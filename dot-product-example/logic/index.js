@@ -5,6 +5,7 @@ import { RenderSystem } from "./ecs/systems/renderSystem.js";
 import { SceneSystem } from "./ecs/systems/sceneSystem.js";
 import { KeyboardInputSystem } from "./ecs/systems/keyboardInputSystem.js";
 import { MovementSystem } from "./ecs/systems/movementSystem.js";
+import { VisionSystem } from "./ecs/systems/visionSystem.js";
 import { initLights } from "./helpers/lights.js";
 import { initHelpers } from "./helpers/helpers.js";
 import { loadObjects } from "./objects.js";
@@ -19,7 +20,7 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 
-camera.position.set(-4, 4, 5);
+camera.position.set(0, 10, 0);
 camera.lookAt(0, 0, 0);
 
 initLights(scene, THREE);
@@ -28,6 +29,7 @@ const { renderer, controls } = initHelpers(camera, scene, THREE);
 world.addSystem(new KeyboardInputSystem());
 world.addSystem(new MovementSystem());
 world.addSystem(new GravitySystem());
+world.addSystem(new VisionSystem(scene));
 world.addSystem(new RenderSystem());
 world.addSystem(new SceneSystem(scene));
 
